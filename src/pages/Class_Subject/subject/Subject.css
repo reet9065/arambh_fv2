@@ -1,0 +1,30 @@
+.subject_page{
+    padding: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.subject_page>table{
+    width: 90%;
+    margin-top: 10px;
+    outline: 0.5px solid var(--gray-700);
+}
+
+.subject_page>table>thead>tr>th,.subject_page>table>tbody>tr>td{
+    border: 0.5px solid var(--gray-700);
+    text-align: center;
+}
+
+
+@media (max-width: 768px) { 
+    .subject_page>table{
+        font-size: 14px;
+    }
+
+    .subject_page>table>tr>th{
+        font-size: 12px;
+    }
+  
+}

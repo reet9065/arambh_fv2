@@ -1,0 +1,16 @@
+.Subject_tag{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.Subject_tag>.Subject_name,
+.Subject_tag>.Subject_code{
+    border: 0.5px solid var(--gray-400);
+    padding: 1px;
+    background-color: var(--gray-200);
+}
+
+.Subject_code{
+    color:var(--blue-800);
+}

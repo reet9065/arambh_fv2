@@ -1,0 +1,31 @@
+.SchoolClass{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid red;
+}
+
+.SchoolClass>table{
+    width: 90%;
+    margin-top: 10px;
+    outline: 0.5px solid var(--gray-700);
+}
+
+.SchoolClass>table>tbody>tr>td,
+.SchoolClass>table>thead>tr>th{
+    border: 0.5px solid var(--gray-700);
+    text-align: center;
+    cursor: pointer;
+}
+
+.SchoolClass>table>tbody>tr:hover{
+    background-color: var(--gray-100);
+}
+
+.subject_list_container{
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    border: 1px solid green;
+}
