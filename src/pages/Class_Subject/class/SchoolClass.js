@@ -1,8 +1,25 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import "./SchoolClass.css";
 import SubjectTag from "../../../components/subjectTag/SubjectTag";
+import { ClassListContext } from "../Index";
 
 function SchoolClass() {
+  const [showSubjectList, setShowSubjectList] = useState(null);
+
+  const classList = useContext(ClassListContext);
+
+  const subjectListDisplayControler = (index) => {
+    console.log("controlar function runs", index);
+
+    if (!showSubjectList) {
+      setShowSubjectList(index);
+    }
+
+    if (showSubjectList !== null) {
+      setShowSubjectList(null);
+    }
+  };
+
   return (
     <div className="SchoolClass">
       <table>
@@ -15,49 +32,49 @@ function SchoolClass() {
           </tr>
         </thead>
 
-        <tbody>
-          <tr title="Show Subject">
-            <td>NC</td>
-            <td>NCA</td>
-            <td>
-              <span className="action_link">edit</span>
-            </td>
-            <td>
-              <span className="action_link">delete</span>
-            </td>
-          </tr>
-          <tr>
-            <td
-              aria-rowspan={4}
-              className="subject_list_container"
-              // style={{ display: true ? "flex" : "none" }}
-            >
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-              <SubjectTag subName={"English"} subCode={"ENG"} />
-            </td>
-          </tr>
-        </tbody>
+        {classList.data && (
+          <tbody>
+            {classList.data.getclasses.length &&
+              classList.data.getclasses.map((classItem, classIndex) => {
+                return (
+                  <>
+                    <tr key={classIndex}>
+                      <td
+                        title="Show Subject"
+                        onClick={() => subjectListDisplayControler(classIndex)}
+                      >
+                        {classItem.sclass}
+                      </td>
+                      <td>{classItem.sclassCode}</td>
+                      <td>
+                        <span className="action_link">edit</span>
+                      </td>
+                      <td>
+                        <span className="action_link">delete</span>
+                      </td>
+                    </tr>
+                    {showSubjectList !== null &&
+                      showSubjectList === classIndex && (
+                        <tr>
+                          <td colSpan={4} className="subject_list_container">
+                            {classItem.sclassSubjects.map((subjectsItem, i) => {
+                              return (
+                                <div key={i} className="subject_list">
+                                  <SubjectTag
+                                    subName={subjectsItem.subName}
+                                    subCode={subjectsItem.subCode}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </td>
+                        </tr>
+                      )}
+                  </>
+                );
+              })}
+          </tbody>
+        )}
       </table>
     </div>
   );

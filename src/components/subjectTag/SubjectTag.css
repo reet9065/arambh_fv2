@@ -1,11 +1,12 @@
 .Subject_tag{
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     align-items: center;
 }
 
 .Subject_tag>.Subject_name,
 .Subject_tag>.Subject_code{
+    font-size: 12px;
     border: 0.5px solid var(--gray-400);
     padding: 1px;
     background-color: var(--gray-200);
