@@ -37,7 +37,7 @@ function SchoolClass() {
             {classList.data.getclasses.length &&
               classList.data.getclasses.map((classItem, classIndex) => {
                 return (
-                  <>
+                  <React.Fragment key={classIndex}>
                     <tr key={classIndex}>
                       <td
                         title="Show Subject"
@@ -57,25 +57,32 @@ function SchoolClass() {
                       showSubjectList === classIndex && (
                         <tr>
                           <td colSpan={4} className="subject_list_container">
-                            {classItem.sclassSubjects.map((subjectsItem, i) => {
-                              return (
-                                <div key={i} className="subject_list">
-                                  <SubjectTag
-                                    subName={subjectsItem.subName}
-                                    subCode={subjectsItem.subCode}
-                                  />
-                                </div>
-                              );
-                            })}
+                            <div className="subject_list">
+                              {classItem.sclassSubjects.map(
+                                (subjectsItem, i) => {
+                                  return (
+                                    <SubjectTag
+                                      key={i}
+                                      subName={subjectsItem.subName}
+                                      subCode={subjectsItem.subCode}
+                                    />
+                                  );
+                                }
+                              )}
+                            </div>
                           </td>
                         </tr>
                       )}
-                  </>
+                  </React.Fragment>
                 );
               })}
           </tbody>
         )}
       </table>
+
+      <button className="primary_btn">
+        Add class
+      </button>
     </div>
   );
 }

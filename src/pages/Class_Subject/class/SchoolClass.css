@@ -22,6 +22,10 @@
     background-color: var(--gray-100);
 }
 
+.subject_list_container{
+    padding: 3px;
+}
+
 .subject_list{
     width: 100%;
     display: flex;
