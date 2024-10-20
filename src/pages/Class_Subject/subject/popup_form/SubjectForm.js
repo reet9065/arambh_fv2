@@ -2,9 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import "./SubjectForm.css";
 import fetchQuery from "../../../../utils/fetchQuery";
 import { useForm } from "react-hook-form";
-import { useContext, useEffect, useState } from "react";
-import { NotificationContext } from "../../../../App";
-// import Loading from "../../../../components/loading/Loading";
+import { useEffect } from "react";
 
 const createSubject = (data) => {
   const { subName, subCode } = data;
@@ -36,11 +34,9 @@ const updateSubject = (id, input) => {
   `;
 };
 
-function SubjectForm({ onButtonSubmitSuccessfully, formValue, ifError }) {
-  const [error,setError] = useState(null);
-  const queryClient = useQueryClient();
-  const notifiation = useContext(NotificationContext);
+function SubjectForm({ onButtonSubmitSuccessfully, formValue, setPopupNotification,setLoading}) {
 
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -55,8 +51,8 @@ function SubjectForm({ onButtonSubmitSuccessfully, formValue, ifError }) {
       return await fetchQuery(process.env.REACT_APP_ENDPOINT_URL, newSubject);
     },
     onSuccess: (data) => {
-      console.log(data);
-      notifiation.setNotification({
+      setLoading(false);
+      setPopupNotification({
         type: "success",
         message: "New subject added successfully",
       });
@@ -74,7 +70,12 @@ function SubjectForm({ onButtonSubmitSuccessfully, formValue, ifError }) {
     },
 
     onError:(error)=>{
-      setError(error);
+      setLoading(false);
+      setPopupNotification({
+        type: "warning",
+        message:error.message,
+        closeBtn: true,
+      })
     }
   });
 
@@ -83,8 +84,8 @@ function SubjectForm({ onButtonSubmitSuccessfully, formValue, ifError }) {
       return await fetchQuery(process.env.REACT_APP_ENDPOINT_URL, updatedSubject);
     },
     onSuccess:(data)=>{
-      setError(null);
-      notifiation.setNotification({
+      setLoading(false);
+      setPopupNotification({
         type:'success',
         message:"Subject updated successfully"
       });
@@ -104,29 +105,22 @@ function SubjectForm({ onButtonSubmitSuccessfully, formValue, ifError }) {
       onButtonSubmitSuccessfully();
     },
     onError:(error)=>{
-      setError(error);
-    }
-  });
-
-  useEffect(() => {
-    if (error) {
-      console.log(error);
-      notifiation.setNotification({
+      setLoading(false)
+      setPopupNotification({
         type: "warning",
         message:error.message,
         closeBtn: true,
-      });
+      })
     }
-  }, [error]);
+  });
 
-  if (errors.subName) {
-    console.log(errors.subName);
-  }
-  console.log("form render");
-  console.log("isSubmitting => ", isSubmitting);
+  useEffect(()=>{
+    if(editSubject.isPending || addSubject.isPending){
+      setLoading(true);
+    }
+  },[editSubject.isPending , addSubject.isPending, setLoading])
 
   const formSubmit = (data) => {
-    console.log(data);
 
     if (formValue.type === "Add") {
       addSubject.mutate(createSubject(data));

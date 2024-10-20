@@ -2,8 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import "./Subject.css";
 import Popup from "../../../components/popup/popup";
 import SubjectForm from "./popup_form/SubjectForm";
-import { LoadingContext, NotificationContext } from "../../../App";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import Notification from "../../../components/notificationPopup/Notification";
+import Loading from "../../../components/loading/Loading";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import fetchQuery from "../../../utils/fetchQuery";
 import { SubjectListContext } from "../Index";
 
@@ -21,15 +22,14 @@ function Subject() {
   console.log("subject page renders");
 
   const queryClient = useQueryClient();
+  const [loading, setLoading] = useState(false);
+  const [popupNotification, setPopupNotification] = useState(null);
+
+  const closeNotification = () => {
+    setPopupNotification(null);
+  };
+
   const subjectList = useContext(SubjectListContext);
-  console.log(subjectList.data);
-  if(subjectList.data){
-    console.log(subjectList.data)
-  }
-
-
-  const loading = useContext(LoadingContext);
-  const notification = useContext(NotificationContext);
 
   const [formType, setFormType] = useState(null);
 
@@ -38,48 +38,44 @@ function Subject() {
       return await fetchQuery(process.env.REACT_APP_ENDPOINT_URL, deleteQuery);
     },
     onSuccess: (data) => {
-      notification.setNotification({
-        type:'success',
-        message:"One subject deleted Successfully",
-        closeBtn:true
-      })
-      queryClient.setQueryData(["getSubjects"],
-        (oldSubjectList) => {
-          oldSubjectList.getSubjects =
-            oldSubjectList.getSubjects.filter(
-              (subject) => subject.id !== data.deleteSubject.id
-            );
-          return oldSubjectList;
-        },
-      );
+      setPopupNotification({
+        type: "success",
+        message: "One subject deleted Successfully",
+        closeBtn: true,
+      });
+      queryClient.setQueryData(["getSubjects"], (oldSubjectList) => {
+        oldSubjectList.getSubjects = oldSubjectList.getSubjects.filter(
+          (subject) => subject.id !== data.deleteSubject.id
+        );
+        return oldSubjectList;
+      });
     },
     onError: (error) => {
-      notification.setNotification({
-        type:'warning',
-        message:error.message,
-        closeBtn:true
-      })
+      setPopupNotification({
+        type: "warning",
+        message: error.message,
+        closeBtn: true,
+      });
     },
   });
 
   useEffect(() => {
     if (subjectList.isLoading) {
-      loading.setLoading(true);
+      setLoading(true);
     }
     if (subjectList.data || subjectList.error) {
-      loading.setLoading(false);
+      setLoading(false);
     }
 
     if (subjectList.error) {
-      console.log(subjectList.error);
-      loading.setLoading(false);
-      notification.setNotification({
+      setLoading(false);
+      setPopupNotification({
         type: "warning",
-        message:subjectList.error.message,
+        message: subjectList.error.message,
         closeBtn: true,
       });
     }
-  }, [subjectList.isLoading, subjectList.error]);
+  }, [subjectList.isLoading, subjectList.error, subjectList.data]);
 
   const popupClose = () => {
     setFormType(null);
@@ -90,39 +86,38 @@ function Subject() {
   };
 
   const deleteSubjectFromList = (id) => {
-    if(!id){
+    if (!id) {
       return;
     }
 
-    var userConformation = window.confirm("Are you sure want to delete this Subject");
+    var userConformation = window.confirm(
+      "Are you sure want to delete this Subject"
+    );
 
-    if(!userConformation){
+    if (!userConformation) {
       return;
     }
 
     removeSubject.mutate(deleteSubject(id));
-
-
-
   };
 
   return (
     <div className="subject_page">
-       {subjectList.error && (
-        <p style={{ color: "red" }}>
-          {subjectList.error.message}
-        </p>
+      {subjectList.error && (
+        <p style={{ color: "red" }}>{subjectList.error.message}</p>
       )}
       {formType && (
         <Popup titel={formType.type + " Subject"} onClose={popupClose}>
           <SubjectForm
             onButtonSubmitSuccessfully={formSubmit}
             formValue={formType}
+            setPopupNotification={setPopupNotification}
+            setLoading={setLoading}
           />
         </Popup>
       )}
 
-      {subjectList.data && !subjectList.isLoading && (
+      {subjectList.data && !subjectList.error && (
         <table>
           <thead>
             <tr>
@@ -161,7 +156,7 @@ function Subject() {
                     <td>
                       <span
                         className="action_link"
-                        onClick={()=>deleteSubjectFromList(item.id)}
+                        onClick={() => deleteSubjectFromList(item.id)}
                       >
                         delete
                       </span>
@@ -173,19 +168,28 @@ function Subject() {
         </table>
       )}
 
-      {!subjectList.error && (
-        <button
-          className="primary_btn"
-          onClick={() =>
-            setFormType({
-              type: "Add",
-            })
-          }
-        >
-          {" "}
-          Add Subject
-        </button>
+      {subjectList.data && !subjectList.error &&
+          <button
+            className="primary_btn"
+            onClick={() =>
+              setFormType({
+                type: "Add",
+              })
+            }
+          >
+            {" "}
+            Add Subject
+          </button>
+        }
+
+      {popupNotification && (
+        <Notification
+          notification={popupNotification}
+          duration={5000}
+          closeNotification={closeNotification}
+        />
       )}
+      {loading && <Loading />}
     </div>
   );
 }
