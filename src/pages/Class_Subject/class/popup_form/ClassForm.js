@@ -1,18 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./ClassForm.css";
 import SubjectTag from "../../../../components/subjectTag/SubjectTag";
 import { useForm } from "react-hook-form";
 
-function ClassForm() {
+function ClassForm({ formValue }) {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm();
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: formValue.data ? formValue.data : {},
+  });
+
+  const sclass = watch("sclass");
+
+  useEffect(() => {
+    if (sclass) {
+      var match = formValue.classList.filter(
+        (sclassItem) => sclassItem.sclass === sclass
+      );
+      console.log(match);
+      setValue("sclassCode", sclass + String.fromCharCode(65 + match.length));
+    } else {
+      setValue("sclassCode");
+    }
+  }, [sclass, formValue.classList, setValue]);
+
+  const formSubmit = (formData) => {
+    console.log(formData);
+  };
 
   return (
-    <form action="#" className="sclassForm">
+    <form action="#" className="sclassForm" onSubmit={handleSubmit(formSubmit)}>
       {/* Class input  */}
       <div className="classInput_classCode">
         <div className="input_text">
@@ -23,6 +45,7 @@ function ClassForm() {
           <input
             type="text"
             id="input_type_text"
+            style={{ textTransform: "uppercase" }}
             className={errors.sclass ? "input_error" : ""}
             {...register("sclass", {
               required: "Class input is required",
@@ -35,16 +58,15 @@ function ClassForm() {
 
         <div className="input_text">
           <div className="label_required">
-            <label htmlFor="input_type_text"> Class </label>
+            <label htmlFor="input_type_text"> Class Code </label>
             <p>*</p>
           </div>
           <input
             type="text"
             id="input_type_text"
+            style={{ textTransform: "uppercase" }}
             className={errors.sclassCode ? "input_error" : ""}
-            {...register("sclassCode", {
-              required: "Class Code input is required",
-            })}
+            {...register("sclassCode")}
             disabled
           />
           {errors.sclassCode && (
@@ -56,16 +78,35 @@ function ClassForm() {
         <p>
           Includ Subjects <span style={{ color: "red" }}>*</span>
         </p>
+        <hr />
         <div className="subject_list_checkbox_container">
-          <div className="subject_checkbox">
-            <SubjectTag subName={"English"} subCode={"ENG"} />
-            <input type="checkbox" {...register("subject")} />
-          </div>
-          <div className="subject_checkbox">
-            <SubjectTag subName={"Hindi"} subCode={"Hindi"} />
-            <input type="checkbox" {...register("subject")} />
-          </div>
+          {formValue.subjectList.map((subject, i) => {
+            return (
+              <div className="subject_checkbox" key={i}>
+                <SubjectTag
+                  subName={subject.subName}
+                  subCode={subject.subCode}
+                />
+                <input
+                  type="checkbox"
+                  {...register("sclassSubjects")}
+                  value={subject.id}
+                />
+              </div>
+            );
+          })}
         </div>
+      </div>
+      <div className="btn">
+        {formValue.type === "Add" && (
+          <button type="reset" className="primary_btn" onClick={() => reset()}>
+            Reset
+          </button>
+        )}
+
+        <button type="submit" className="primary_btn">
+          {formValue.type} class
+        </button>
       </div>
     </form>
   );

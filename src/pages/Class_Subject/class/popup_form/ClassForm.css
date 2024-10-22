@@ -2,10 +2,23 @@
     padding: 5px;
 }
 
+.sclassForm>.classInput_classCode{
+  /* width: 100%; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sclassForm>.classInput_classCode>.input_text{
+  width: 100px;
+}
+
 .sclassForm > .class_form_subject_list_box > .subject_list_checkbox_container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
+  margin-top: 10px;
 }
 
 .sclassForm
@@ -17,4 +30,18 @@
     padding: 3px;
     align-items: center;
     border: 1px solid var(--gray-100);
+    justify-content: space-between;
+}
+
+.sclassForm>.class_form_subject_list_box>p{
+  font-size: 10px;
+}
+
+.sclassForm>.btn{
+  display: flex;
+  padding: 5px;
+  gap: 10px;
+  justify-content: end;
+  align-items: center;
+  margin-top: 10px;
 }

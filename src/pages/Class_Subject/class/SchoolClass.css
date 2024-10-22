@@ -15,12 +15,12 @@
 .SchoolClass>table>thead>tr>th{
     border: 0.5px solid var(--gray-700);
     text-align: center;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
-.SchoolClass>table>tbody>tr:hover{
+/* .SchoolClass>table>tbody>tr:hover{
     background-color: var(--gray-100);
-}
+} */
 
 .subject_list_container{
     padding: 3px;

@@ -35,6 +35,8 @@ export const ClassListContext = createContext();
 export const SubjectListContext = createContext();
 
 function Index() {
+
+  console.log("Subject_Class_indexPage_render");
   var subnavs = [
     {
       tabText: "SUBJET",
@@ -53,7 +55,7 @@ function Index() {
     },
     refetchOnWindowFocus: false,
   });
-
+  // console.log(subjectList.data);
   const classList = useQuery({
     queryKey:['getclasses'],
     queryFn: async ()=>{

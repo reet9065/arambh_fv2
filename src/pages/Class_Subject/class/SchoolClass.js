@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./SchoolClass.css";
 import SubjectTag from "../../../components/subjectTag/SubjectTag";
-import { ClassListContext } from "../Index";
+import { ClassListContext, SubjectListContext } from "../Index";
 import Notification from "../../../components/notificationPopup/Notification";
 import Loading from "../../../components/loading/Loading";
 import Popup from "../../../components/popup/popup";
@@ -11,16 +11,18 @@ function SchoolClass() {
   const [showSubjectList, setShowSubjectList] = useState(null);
   const [popupNotification, setPopupNotification] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [formType,setFormType] = useState(null);
 
   const closeNotification = () => {
     setPopupNotification(null);
   };
 
   const classList = useContext(ClassListContext);
+  const subjectList = useContext(SubjectListContext);
+
+  const [formType, setFormType] = useState(null);
 
   useEffect(() => {
-    if (classList.error) {
+    if (classList.error && subjectList.error) {
       setLoading(false);
       setPopupNotification({
         type: "warning",
@@ -29,14 +31,27 @@ function SchoolClass() {
       });
     }
 
-    if (classList.isLoading) {
+    if (classList.isLoading && subjectList.isLoading) {
       setLoading(true);
     }
 
-    if (classList.data) {
+    if (classList.data && subjectList.data) {
       setLoading(false);
+      // console.log(classList.data);
+      // setFormType({
+      //   type:"Add",
+      //   subjectList:subjectList.data.getSubjects,
+      //   classList:classList.data.getclasses
+      // });
     }
-  }, [classList.error, classList.isLoading, classList.data]);
+  }, [
+    classList.error,
+    classList.isLoading,
+    classList.data,
+    subjectList.error,
+    subjectList.data,
+    subjectList.isLoading,
+  ]);
 
   const subjectListDisplayControler = (index) => {
     console.log("controlar function runs", index);
@@ -50,28 +65,47 @@ function SchoolClass() {
     }
   };
 
-  const popupClose = ()=>{
+  const popupClose = () => {
     setFormType(null);
-  }
+  };
 
-  const formSubmit = (formData)=>{
+  const formSubmit = (formData) => {
     console.log("Form submit");
-  }
+  };
+
+  const classModificationFormControler = (key, prevData) => {
+    const popupFormData = {
+      type: key,
+      subjectList: subjectList.data.getSubjects,
+      classList: classList.data.getclasses,
+    };
+
+    if (key !== "Add" && prevData) {
+      popupFormData.data = {
+        sclass: prevData.sclass,
+        sclassCode: prevData.sclassCode,
+        sclassSubjects: prevData.sclassSubjects.map((subject) => subject.id),
+      };
+    }
+
+    console.log(popupFormData);
+
+    setFormType(popupFormData);
+  };
 
   return (
     <div className="SchoolClass">
-
-      <Popup titel={"Add class"} onClose={popupClose}>
-        <ClassForm 
-        onSubmitSuccessfully={formSubmit}
-        />
-      </Popup>
+      {formType && (
+        <Popup titel={formType.type + " Class"} onClose={popupClose}>
+          <ClassForm onSubmitSuccessfully={formSubmit} formValue={formType} />
+        </Popup>
+      )}
 
       {classList.error && !classList.isLoading && (
         <p style={{ color: "red" }}>{classList.error.message}</p>
       )}
 
-      {classList.data && !classList.isLoading && (
+      {classList.data && !classList.isLoading && subjectList.data && (
         <table>
           <thead>
             <tr>
@@ -87,15 +121,31 @@ function SchoolClass() {
                 return (
                   <React.Fragment key={classIndex}>
                     <tr key={classIndex}>
-                      <td
-                        title="Show Subject"
-                        onClick={() => subjectListDisplayControler(classIndex)}
-                      >
-                        {classItem.sclass}
+                      <td title="Show Subject">
+                        {classItem.sclass}{" "}
+                        |<span
+                          className="action_link"
+                          onClick={() =>
+                            subjectListDisplayControler(classIndex)
+                          }
+                        >
+                        {" "}
+                          veiw subjects{" "}
+                        </span>
                       </td>
                       <td>{classItem.sclassCode}</td>
                       <td>
-                        <span className="action_link">edit</span>
+                        <span
+                          className="action_link"
+                          onClick={() =>
+                            classModificationFormControler(
+                              "Update",
+                              classItem
+                            )
+                          }
+                        >
+                          edit
+                        </span>
                       </td>
                       <td>
                         <span className="action_link">delete</span>
@@ -128,8 +178,13 @@ function SchoolClass() {
         </table>
       )}
 
-      {classList.data && !classList.isLoading && (
-        <button className="primary_btn">Add class</button>
+      {classList.data && !classList.isLoading && subjectList.data && (
+        <button
+          className="primary_btn"
+          onClick={() => classModificationFormControler("Add")}
+        >
+          Add class
+        </button>
       )}
 
       {popupNotification && (
