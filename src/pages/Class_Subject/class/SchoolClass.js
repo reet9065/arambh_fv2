@@ -6,8 +6,20 @@ import Notification from "../../../components/notificationPopup/Notification";
 import Loading from "../../../components/loading/Loading";
 import Popup from "../../../components/popup/popup";
 import ClassForm from "./popup_form/ClassForm";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import fetchQuery from "../../../utils/fetchQuery";
+
+const deleteClass = (cID) => {
+  return `mutation removeClass{
+  deleteClass(cID:"${cID}"){
+      id
+    }
+  }`;
+};
 
 function SchoolClass() {
+  const queryClient = useQueryClient();
+
   const [showSubjectList, setShowSubjectList] = useState(null);
   const [popupNotification, setPopupNotification] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,6 +32,36 @@ function SchoolClass() {
   const subjectList = useContext(SubjectListContext);
 
   const [formType, setFormType] = useState(null);
+
+  const removeClass = useMutation({
+    mutationFn: async (removeSubjectQuery) => {
+      return await fetchQuery(
+        process.env.REACT_APP_ENDPOINT_URL,
+        removeSubjectQuery
+      );
+    },
+    onSuccess: (data) => {
+      setLoading(false);
+      queryClient.setQueryData(["getclasses"], (oldData) => {
+        oldData.getclasses = oldData.getclasses.filter(
+          (classItem) => classItem.id !== data.deleteClass.id
+        );
+        return oldData;
+      });
+      setPopupNotification({
+        type: "success",
+        message: "One class Deleted Successfully",
+      });
+    },
+    onError: (err) => {
+      setLoading(false);
+      setPopupNotification({
+        type:"warning",
+        message:err.message,
+        closeBtn:true
+      })
+    },
+  });
 
   useEffect(() => {
     if (classList.error && subjectList.error) {
@@ -37,12 +79,6 @@ function SchoolClass() {
 
     if (classList.data && subjectList.data) {
       setLoading(false);
-      // console.log(classList.data);
-      // setFormType({
-      //   type:"Add",
-      //   subjectList:subjectList.data.getSubjects,
-      //   classList:classList.data.getclasses
-      // });
     }
   }, [
     classList.error,
@@ -70,7 +106,7 @@ function SchoolClass() {
   };
 
   const formSubmit = (formData) => {
-    console.log("Form submit");
+    setFormType(null);
   };
 
   const classModificationFormControler = (key, prevData) => {
@@ -80,8 +116,9 @@ function SchoolClass() {
       classList: classList.data.getclasses,
     };
 
-    if (key !== "Add" && prevData) {
+    if (key === "Update" && prevData) {
       popupFormData.data = {
+        id: prevData.id,
         sclass: prevData.sclass,
         sclassCode: prevData.sclassCode,
         sclassSubjects: prevData.sclassSubjects.map((subject) => subject.id),
@@ -93,11 +130,33 @@ function SchoolClass() {
     setFormType(popupFormData);
   };
 
+  const deletClassFromList = (id) => {
+    console.log(id);
+    if (!id) {
+      return;
+    }
+
+    var userConformation = window.confirm(
+      "Are sure want to delete the Class which you clicked ?"
+    );
+
+    if (!userConformation) {
+      return;
+    }
+
+    removeClass.mutate(deleteClass(id));
+  };
+
   return (
     <div className="SchoolClass">
       {formType && (
         <Popup titel={formType.type + " Class"} onClose={popupClose}>
-          <ClassForm onSubmitSuccessfully={formSubmit} formValue={formType} />
+          <ClassForm
+            onSubmitSuccessfully={formSubmit}
+            formValue={formType}
+            setLoading={setLoading}
+            setPopupNotification={setPopupNotification}
+          />
         </Popup>
       )}
 
@@ -116,20 +175,20 @@ function SchoolClass() {
             </tr>
           </thead>
           <tbody>
-            {classList.data.getclasses.length &&
+            {classList.data.getclasses.length > 0 &&
               classList.data.getclasses.map((classItem, classIndex) => {
                 return (
                   <React.Fragment key={classIndex}>
                     <tr key={classIndex}>
                       <td title="Show Subject">
-                        {classItem.sclass}{" "}
-                        |<span
+                        {classItem.sclass} |
+                        <span
                           className="action_link"
                           onClick={() =>
                             subjectListDisplayControler(classIndex)
                           }
                         >
-                        {" "}
+                          {" "}
                           veiw subjects{" "}
                         </span>
                       </td>
@@ -138,17 +197,19 @@ function SchoolClass() {
                         <span
                           className="action_link"
                           onClick={() =>
-                            classModificationFormControler(
-                              "Update",
-                              classItem
-                            )
+                            classModificationFormControler("Update", classItem)
                           }
                         >
                           edit
                         </span>
                       </td>
                       <td>
-                        <span className="action_link">delete</span>
+                        <span
+                          className="action_link"
+                          onClick={() => deletClassFromList(classItem.id)}
+                        >
+                          delete
+                        </span>
                       </td>
                     </tr>
                     {showSubjectList !== null &&
