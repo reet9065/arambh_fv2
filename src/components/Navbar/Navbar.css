@@ -8,6 +8,21 @@
 
 .Navbar>.menu>img{
     width: 25px;
+    cursor: pointer;
+}
+
+.Navbar>.menu{
+    position: relative;
+}
+
+.menuItemsContainer{
+    position: absolute;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    left: 0;
+    top: 30px;
 }
 
 .Navbar>.logo_name,

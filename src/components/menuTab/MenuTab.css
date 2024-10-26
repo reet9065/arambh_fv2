@@ -1,0 +1,10 @@
+.menuTab{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-decoration: none;
+    padding: 3px;
+    background-color: var(--gray-100);
+    color: black;
+    border: var(--tab-border);
+}

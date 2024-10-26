@@ -1,13 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 import "./Navbar.css"
-import { SCHOOL_LOGO , MENU_OPEN_ICON, BOTTOM_POINTING_UNION } from '../../assets/assets'
+import { SCHOOL_LOGO , MENU_OPEN_ICON, BOTTOM_POINTING_UNION, MENU_CLOSE_ICON } from '../../assets/assets'
+import MenuTab from '../menuTab/MenuTab'
+
+const Menu = [
+  {
+    NavLinkPath:'/',
+    menuText:'Home'
+  },
+  {
+    NavLinkPath:'/subjectclass/subject',
+    menuText:'Subject - Class'
+  },
+]
 
 
 function Navbar() {
+
+  const [showMenu, setShowMenu] = useState(false);
+
   return (
     <div className='Navbar'>
       <div className="menu">
-        <img src={MENU_OPEN_ICON} alt="logo" />
+        <img src={showMenu ? MENU_CLOSE_ICON : MENU_OPEN_ICON} alt="logo" 
+        onClick={() => setShowMenu(!showMenu)}/>
+        {showMenu && <div className="menuItemsContainer">
+          {Menu.map((menuItem)=> {
+            return (<MenuTab NavLinkPath={menuItem.NavLinkPath} menuText={menuItem.menuText}/>);
+          })}
+        </div>}
       </div>
       <div className="logo_name">
         <img src={SCHOOL_LOGO} alt="logo" className="logo" />
