@@ -90,3 +90,12 @@ button.primary_btn:disabled {
 code {
   font-family: "Space Mono", monospace;
 }
+
+a{
+  text-decoration: none;
+  color: var(--gray-800);
+}
+
+a.active{
+  color: rgb(38, 78, 255);
+}
