@@ -10,6 +10,7 @@ class CustomError extends Error {
 
 
 const fetchQuery = async (url, query) => {
+  console.log("fetch function runs")
   try {
     const queryServer = await fetch(url, {
       method: "POST",
@@ -19,8 +20,6 @@ const fetchQuery = async (url, query) => {
       body: JSON.stringify({ query: query }),
     });
 
-    console.log(queryServer);
-
     const respons = await queryServer.json();
     if (respons) {
       if (respons.errors) {
@@ -29,8 +28,6 @@ const fetchQuery = async (url, query) => {
         throw new CustomError(errorMessage, queryServer.status,respons.errors[0].extensions.code);
       }
 
-
-      console.log(respons.data);
       return respons.data;
     }
   } catch (error) {
